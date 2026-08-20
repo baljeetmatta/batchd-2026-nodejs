@@ -1,11 +1,84 @@
 const http=require("http");
 const fs=require("fs")
+const url=require("url")
 
 
-const server=http.createServer(handleRequest);
+const server=http.createServer(handleServer);
+
+function handleServer(req,res){
+
+   // "/index.html","/about.html", "/code.js" "/style.css"
+   const parseUrl= url.parse(req.url,true);
+//console.log(parseUrl);
+
+//    let filename=req.url.substring(1);
+//     if(req.url=="/")
+//         filename="index.html";
+//     else if (req.url=="/about")
+//         filename="about.html";
+
+let file=true;
+let filename=req.url.substring(1);
+    if(parseUrl.pathname=="/")
+        filename="index.html";
+    else if (parseUrl.pathname=="/about")
+        filename="about.html";
+    else if (parseUrl.pathname=="/getData" && req.method=="GET")
+    {
+        file=false;
+
+        res.write(`Welcome ${parseUrl.query.username} ${parseUrl.query.password}`);
+        res.end();
+
+
+
+
+    }
+
+     else if (parseUrl.pathname=="/getData" && req.method=="POST")
+    {
+        file=false;
+        //EVENTS data,end
+let body=""
+        req.on("data",(chunk)=>{
+            body+=chunk;
+
+        })
+        req.on("end",()=>{
+                console.log(body);
+                const data=new URLSearchParams(body);
+                //get("variablename")
+                res.write(`Welcome ${data.get("username")} ${data.get("password")}`)
+                res.end();
+        })
+
+       //res.write(`Welcome ${parseUrl.query.username} ${parseUrl.query.password}`);
+        
+
+
+
+
+    }
+
+
+if(file)
+    fs.readFile("./"+filename,"utf-8",(err,data)=>{
+        if(err)
+            res.end();
+        else{
+            res.write(data);
+            res.end();
+        }
+
+
+        })
+
+
+}
+
 function handleRequest(req,res){
 
-    console.log(req.url);
+   // console.log(req.url);
 
 
     res.setHeader("Content-type","text/html")
@@ -45,7 +118,6 @@ function handleRequest(req,res){
          fs.readFile("./code.js","utf-8",(err,data)=>{
             res.write(data);
             res.end();
-
 
         })
 

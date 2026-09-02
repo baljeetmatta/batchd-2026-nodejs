@@ -65,7 +65,7 @@ app.get("/getData",(req,res)=>{
 
 app.post("/getData",(req,res)=>{
 //get req.query
-//pot req.body
+//post req.body
 
  res.send(`Welcome ${req.body.username}`);
 

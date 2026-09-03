@@ -1,8 +1,19 @@
 const express=require("express");
+const sess=require("express-session");//function
+const path=require("path")
 const fs=require("fs");
 const app=express();
 app.use(express.static("."));
 app.use(express.urlencoded({extended:true}))
+app.use(sess({
+    secret:"sdsa#$#$",
+    resave:false,
+    saveUninitialized:false,
+    cookie:{
+        maxAge:1000*60*60
+    }
+
+}))
 //extended:false->Basic data
 //variable=value&variable=value
 //complex 
@@ -75,10 +86,24 @@ app.post("/login",(req,res)=>{
         if(results.length==0)
             res.send("Invalid user/password")
         else
-            res.send("Welcome user");
+        {
+            req.session.name=results[0].name;
+
+            res.redirect("/dashboard")
+        }
         
 
     })
+})
+app.get("/dashboard",(req,res)=>{
+
+    if(req.session.name)
+    res.send("Welcome to dashboard "+req.session.name);
+else
+    res.sendFile(path.join(__dirname,"./login.html"));
+
+
+
 })
 app.listen(5000,(err)=>{
     if(!err)
